@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Histórico Scout</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        .font-header { font-family: 'Playfair Display', serif; }
+        .font-body { font-family: 'Crimson Pro', serif; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .museum-card {
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.12);
+            background-color: #fff;
+            border-top: 4px solid transparent;
+        }
+
+        .museum-shadow {
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.12);
+        }
+        
+        .parchment-overlay {
+            background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-wrapper" class="min-h-screen bg-[#f8f6f0] text-[#2c3e50] p-4 md:p-12 font-serif transition-colors duration-700 overflow-x-hidden">
+    
+    <div class="max-w-7xl mx-auto relative">
+        <div class="absolute inset-0 parchment-overlay opacity-30 z-0"></div>
+
+        <header class="text-center mb-16 relative z-10">
+            <div class="flex justify-center mb-6">
+                <div id="header-icon-box" class="p-4 border-2 rounded-full transition-colors duration-500">
+                    <i data-lucide="history" class="animate-pulse w-10 h-10"></i>
+                </div>
+            </div>
+            <h1 class="text-4xl md:text-7xl font-black font-header tracking-tighter mb-4 text-[#1a1a1a]">
+                REGISTRO HISTÓRICO SCOUT
+            </h1>
+            <div id="header-divider" class="h-1 w-24 mx-auto mb-6 rounded-full transition-colors duration-500"></div>
+            <p class="text-lg md:text-xl font-body italic text-[#5d4037] max-w-2xl mx-auto leading-relaxed">
+                Un recorrido por la herencia pedagógica de Robert Baden-Powell y su impacto en la nación chilena.
+            </p>
+        </header>
+
+        <div class="relative mb-16 z-10">
+            <div class="hidden lg:flex absolute top-1/2 -left-12 -right-12 -translate-y-1/2 justify-between pointer-events-none">
+                <button id="btn-left" class="p-5 bg-white shadow-xl rounded-full pointer-events-auto hover:scale-110 transition-all border border-slate-100 duration-500">
+                    <i data-lucide="chevron-left" class="w-8 h-8"></i>
+                </button>
+                <button id="btn-right" class="p-5 bg-white shadow-xl rounded-full pointer-events-auto hover:scale-110 transition-all border border-slate-100 duration-500">
+                    <i data-lucide="chevron-right" class="w-8 h-8"></i>
+                </button>
+            </div>
+
+            <div id="scroll-container" class="flex overflow-x-auto no-scrollbar gap-10 pb-16 pt-8 snap-x snap-mandatory">
+                <!-- Las tarjetas se inyectarán aquí mediante JavaScript -->
+            </div>
+        </div>
+
+        <footer class="mt-12 p-10 bg-white/50 backdrop-blur-md rounded-2xl border border-white museum-shadow flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
+            <div class="flex items-center gap-8">
+                <div id="footer-sc-box" class="w-20 h-20 border-4 flex items-center justify-center font-header font-black text-2xl transition-all duration-700 rounded-lg">
+                    SC
+                </div>
+                <div class="font-body text-center md:text-left">
+                    <p class="font-black text-xl text-[#1a1a1a] uppercase tracking-wider">Patrimonio Scout de Chile</p>
+                    <p class="text-[#5d4037] font-semibold">Archivo Histórico Digitalizado • 1902-1974</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-12 text-center md:text-right">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-[#a0a0a0] mb-1">Volumen</p>
+                    <p id="footer-vol" class="text-3xl font-header font-black transition-colors duration-500">XI Capítulos</p>
+                </div>
+                <div class="hidden sm:block w-px h-12 bg-slate-200"></div>
+                <div>
+                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-[#a0a0a0] mb-1">Ubicación</p>
+                    <p class="text-3xl font-header font-black text-[#1a1a1a]">Santiago</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <div id="dots-container" class="fixed bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-30">
+        <!-- Los puntos de navegación se inyectarán aquí -->
+    </div>
+
+</div>
+
+<script>
+    const events = [
+      { 
+        year: "1902", title: "Woodcraft Indians", desc: "Ernest Thompson Seton establece las bases de la educación experiencial, fusionando la vida en la naturaleza con el misticismo de los pueblos originarios.", icon: "compass", accent: "#d97706", glow: "rgba(217, 119, 6, 0.15)",
+        svg: `<svg viewBox="0 0 100 100" class="transition-all duration-500 group-hover:scale-110 w-[7.5rem] h-[7.5rem] mb-2"><path d="M50 10 L90 90 L10 90 Z" fill="none" stroke="currentColor" stroke-width="2" /><path d="M50 10 L70 90 L30 90 Z" fill="rgba(217, 119, 6, 0.2)" stroke="currentColor" stroke-width="1" /><circle cx="50" cy="65" r="5" fill="currentColor" /><path d="M40 80 L60 80" stroke="currentColor" stroke-width="1.5" /></svg>`
+      },
+      { 
+        year: "1905", title: "The Boy Pioneers", desc: "Daniel Carter Beard fomenta el patriotismo y el espíritu de frontera, introduciendo técnicas de construcción y supervivencia.", icon: "wind", accent: "#2563eb", glow: "rgba(37, 99, 235, 0.15)",
+        svg: `<svg viewBox="0 0 100 100" class="transition-all duration-500 group-hover:scale-110 w-[7.5rem] h-[7.5rem] mb-2"><rect x="20" y="45" width="60" height="8" fill="rgba(37, 99, 235, 0.1)" stroke="currentColor" stroke-width="2" /><rect x="25" y="58" width="50" height="8" fill="rgba(37, 99, 235, 0.1)" stroke="currentColor" stroke-width="2" /><path d="M15 25 L35 45 L15 65" fill="none" stroke="currentColor" stroke-width="2" /><path d="M85 25 L65 45 L85 65" fill="none" stroke="currentColor" stroke-width="2" /></svg>`
+      },
+      { 
+        year: "1907", title: "Campamento de Brownsea", desc: "Hito fundacional donde Robert Baden-Powell valida el Sistema de Patrullas mediante la observación directa del liderazgo juvenil.", icon: "tent", accent: "#059669", glow: "rgba(5, 150, 105, 0.15)",
+        svg: `<svg viewBox="0 0 100 100" class="transition-all duration-500 group-hover:scale-110 w-[7.5rem] h-[7.5rem] mb-2"><path d="M10 80 L50 20 L90 80 Z" fill="rgba(5, 150, 105, 0.1)" stroke="currentColor" stroke-width="2" /><path d="M50 20 L50 80" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4,4" /><circle cx="50" cy="50" r="10" fill="none" stroke="currentColor" stroke-width="1" class="animate-pulse" /></svg>`
+      },
+      { 
+        year: "1908", title: "Scouting for Boys", desc: "Obra fundamental que sistematiza el marco ético y pedagógico del movimiento como una propuesta de ciudadanía activa.", icon: "book", accent: "#92400e", glow: "rgba(146, 64, 14, 0.15)",
+        svg: `<svg viewBox="0 0 100 100" class="transition-all duration-500 group-hover:scale-110 w-[7.5rem] h-[7.5rem] mb-2"><rect x="25" y="15" width="50" height="70" fill="rgba(146, 64, 14, 0.05)" stroke="currentColor" stroke-width="2.5" /><path d="M35 30 H65 M35 45 H65 M35 60 H65" stroke="currentColor" stroke-width="1.5" /><circle cx="50" cy="78" r="4" fill="currentColor" /></svg>`
+      },
+      { 
+        year: "1909", title: "Conferencia en Chile", desc: "Visita de Baden-Powell a Santiago. Se formaliza el interés por extender el escultismo a Latinoamérica fuera de la Commonwealth.", icon: "navigation", accent: "#dc2626", glow: "rgba(220, 38, 38, 0.15)",
+        svg: `<svg viewBox="0 0 100 100" class="transition-all duration-500 group-hover:scale-110 w-[7.5rem] h-[7.5rem] mb-2"><path d="M20 30 H80 V70 H20 Z" fill="rgba(220, 38, 38, 0.05)" stroke="currentColor" stroke-width="2" /><path d="M20 50 H80 M50 30 V70" stroke="currentColor" stroke-width="1" /><path d="M45 45 L55 55 M55 45 L45 55" stroke="currentColor" stroke-width="2" /></svg>`
+      },
+      { 
+        year: "1910", title: "Boy Scouts de Chile", desc: "Fundación de la primera asociación nacional en Sudamérica bajo el liderazgo de Alcibíades Vicencio y Joaquín Cabezas.", icon: "shield", accent: "#1e40af", glow: "rgba(30, 64, 175, 0.15)",
+        svg: `<svg viewBox="0 0 100 100" class="transition-all duration-500 group-hover:scale-110 w-[7.5rem] h-[7.5rem] mb-2"><path d="M50 15 Q 85 15 85 50 Q 85 85 50 95 Q 15 85 15 50 Q 15 15 50 15 Z" fill="rgba(30, 64, 175, 0.05)" stroke="currentColor" stroke-width="2.5" /><path d="M50 35 L55 50 L70 50 L58 60 L62 75 L50 65 L38 75 L42 60 L30 50 L45 50 Z" fill="currentColor" /></svg>`
+      },
+      { 
+        year: "1916", title: "Wolf Cub Handbook", desc: "Se utiliza la narrativa de Kipling para estructurar el desarrollo psicológico en la infancia temprana con el fondo de la selva.", icon: "users", accent: "#ea580c", glow: "rgba(234, 88, 12, 0.15)",
+        svg: `<svg viewBox="0 0 100 100" class="transition-all duration-500 group-hover:scale-110 w-[7.5rem] h-[7.5rem] mb-2"><circle cx="50" cy="60" r="28" fill="none" stroke="currentColor" stroke-width="2" /><path d="M30 40 L45 55 L25 55 Z" fill="currentColor" /><path d="M70 40 L55 55 L75 55 Z" fill="currentColor" /><circle cx="42" cy="58" r="3" fill="currentColor" /><circle cx="58" cy="58" r="3" fill="currentColor" /></svg>`
+      },
+      { 
+        year: "1920", title: "Primer Jamboree", desc: "Londres se convierte en el epicentro de la hermandad internacional, proclamando a B-P como Jefe Scout Mundial.", icon: "globe", accent: "#4338ca", glow: "rgba(67, 56, 202, 0.15)",
+        svg: `<svg viewBox="0 0 100 100" class="transition-all duration-500 group-hover:scale-110 w-[7.5rem] h-[7.5rem] mb-2"><circle cx="50" cy="50" r="40" fill="rgba(67, 56, 202, 0.05)" stroke="currentColor" stroke-width="2" /><ellipse cx="50" cy="50" rx="40" ry="15" stroke="currentColor" stroke-width="1" /><ellipse cx="50" cy="50" rx="15" ry="40" stroke="currentColor" stroke-width="1" /></svg>`
+      },
+      { 
+        year: "1925", title: "Ley Scout Chile", desc: "El Estado chileno otorga protección jurídica mediante el Decreto Ley 520, validando la relevancia social del movimiento.", icon: "scale", accent: "#7c3aed", glow: "rgba(124, 58, 237, 0.15)",
+        svg: `<svg viewBox="0 0 100 100" class="transition-all duration-500 group-hover:scale-110 w-[7.5rem] h-[7.5rem] mb-2"><path d="M20 30 H80 M50 30 V85 M30 85 H70" stroke="currentColor" stroke-width="3" /><circle cx="30" cy="55" r="12" fill="none" stroke="currentColor" stroke-width="1.5" /><circle cx="70" cy="55" r="12" fill="none" stroke="currentColor" stroke-width="1.5" /></svg>`
+      },
+      { 
+        year: "1963", title: "Extensión", desc: "Apertura institucional hacia la inclusión de jóvenes con discapacidades, adaptando el método para todos.", icon: "heart", accent: "#be123c", glow: "rgba(190, 18, 60, 0.15)",
+        svg: `<svg viewBox="0 0 100 100" class="transition-all duration-500 group-hover:scale-110 w-[7.5rem] h-[7.5rem] mb-2"><path d="M50 85 L15 50 A 20 20 0 0 1 50 20 A 20 20 0 0 1 85 50 Z" fill="rgba(190, 18, 60, 0.05)" stroke="currentColor" stroke-width="2" /><path d="M50 40 V 60 M40 50 H 60" stroke="currentColor" stroke-width="3" stroke-linecap="round" /></svg>`
+      },
+      { 
+        year: "1974", title: "Unificación", desc: "Fusión de las ramas femenina y masculina. Se consolida la Asociación de Guías y Scouts de Chile como modelo coeducativo.", icon: "flame", accent: "#0891b2", glow: "rgba(8, 145, 178, 0.15)",
+        svg: `<svg viewBox="0 0 100 100" class="transition-all duration-500 group-hover:scale-110 w-[7.5rem] h-[7.5rem] mb-2"><path d="M50 10 Q 80 40 50 90 Q 20 40 50 10" fill="rgba(8, 145, 178, 0.1)" stroke="currentColor" stroke-width="2" /><path d="M50 35 Q 65 55 50 80 Q 35 55 50 35" fill="currentColor" stroke="none" /></svg>`
+      }
+    ];
+
+    let activeIndex = 0;
+    const scrollContainer = document.getElementById('scroll-container');
+    const dotsContainer = document.getElementById('dots-container');
+
+    // 1. Generar Tarjetas
+    let cardsHtml = `<div class="flex-shrink-0 w-[calc(50%-145px)] md:w-[calc(50%-180px)]" aria-hidden="true"></div>`;
+    events.forEach((event, index) => {
+        cardsHtml += `
+            <div class="event-card flex-shrink-0 w-[290px] md:w-[360px] snap-center group">
+              <div class="museum-card p-6 md:p-8 h-full relative transition-all duration-500 rounded-lg opacity-50 scale-95 z-0"
+                   style="border-top-color: ${event.accent};">
+                
+                <div class="flex justify-between items-center mb-6 border-b border-slate-50 pb-4">
+                  <span class="card-year text-3xl md:text-4xl font-black font-header transition-colors duration-500" style="color: #2c3e50;">
+                    ${event.year}
+                  </span>
+                  <div class="p-2 md:p-3 rounded-xl bg-slate-50" style="color: ${event.accent};">
+                    <i data-lucide="${event.icon}" style="width: 24px; height: 24px; stroke-width: 2px;"></i>
+                  </div>
+                </div>
+
+                <div class="flex flex-col items-center mb-4" style="color: ${event.accent};">
+                  ${event.svg}
+                </div>
+
+                <div class="text-center md:text-left relative z-10 bg-white">
+                  <h3 class="text-xl md:text-2xl font-bold font-header mb-3 leading-tight text-[#1a1a1a]">
+                    ${event.title}
+                  </h3>
+                  <p class="text-base md:text-lg font-body leading-relaxed text-[#4a4a4a] italic border-l-4 pl-4"
+                     style="border-left-color: ${event.accent};">
+                    ${event.desc}
+                  </p>
+                </div>
+
+                <div class="absolute -bottom-2 -right-2 text-8xl md:text-9xl font-black font-header opacity-[0.03] select-none pointer-events-none">
+                  ${event.year}
+                </div>
+              </div>
+            </div>
+        `;
+    });
+    cardsHtml += `<div class="flex-shrink-0 w-[calc(50%-145px)] md:w-[calc(50%-180px)]" aria-hidden="true"></div>`;
+    scrollContainer.innerHTML = cardsHtml;
+
+    // 2. Generar Puntos de Navegación
+    let dotsHtml = '';
+    events.forEach((_, i) => {
+        dotsHtml += `<button class="nav-dot h-2.5 rounded-full transition-all duration-500 w-2.5 bg-slate-300 hover:bg-slate-400" data-index="${i}"></button>`;
+    });
+    dotsContainer.innerHTML = dotsHtml;
+
+    // Inicializar iconos
+    lucide.createIcons();
+
+    // 3. Lógica de Interfaz y Scrolling
+    function updateUI() {
+        const activeEvent = events[activeIndex];
+
+        // Background global
+        document.getElementById('app-wrapper').style.backgroundColor = activeEvent.glow || '#f8f6f0';
+
+        // Header Elements
+        const headerIcon = document.getElementById('header-icon-box');
+        headerIcon.style.borderColor = activeEvent.accent;
+        headerIcon.style.color = activeEvent.accent;
+        document.getElementById('header-divider').style.backgroundColor = activeEvent.accent;
+
+        // Footer Elements
+        const footerBox = document.getElementById('footer-sc-box');
+        footerBox.style.borderColor = activeEvent.accent;
+        footerBox.style.color = activeEvent.accent;
+        document.getElementById('footer-vol').style.color = activeEvent.accent;
+
+        // Botones de Flechas
+        document.getElementById('btn-left').style.color = activeEvent.accent;
+        document.getElementById('btn-right').style.color = activeEvent.accent;
+
+        // Estilos de las Tarjetas
+        const cards = scrollContainer.querySelectorAll('.event-card');
+        cards.forEach((card, index) => {
+            const cardInner = card.querySelector('.museum-card');
+            const yearSpan = card.querySelector('.card-year');
+            
+            if (index === activeIndex) {
+                cardInner.classList.remove('opacity-50', 'scale-95', 'z-0');
+                cardInner.classList.add('scale-105', 'opacity-100', 'z-10');
+                yearSpan.style.color = activeEvent.accent;
+            } else {
+                cardInner.classList.remove('scale-105', 'opacity-100', 'z-10');
+                cardInner.classList.add('opacity-50', 'scale-95', 'z-0');
+                yearSpan.style.color = '#2c3e50';
+            }
+        });
+
+        // Estilos de los Puntos (Dots)
+        const dots = dotsContainer.querySelectorAll('.nav-dot');
+        dots.forEach((dot, index) => {
+            if (index === activeIndex) {
+                dot.classList.remove('w-2.5', 'bg-slate-300', 'hover:bg-slate-400');
+                dot.classList.add('w-10');
+                dot.style.backgroundColor = activeEvent.accent;
+            } else {
+                dot.classList.remove('w-10');
+                dot.classList.add('w-2.5', 'bg-slate-300', 'hover:bg-slate-400');
+                dot.style.backgroundColor = ''; 
+            }
+        });
+    }
+
+    function scrollToCard(index) {
+        const cards = scrollContainer.querySelectorAll('.event-card');
+        if (cards[index]) {
+            const scrollPos = cards[index].offsetLeft - (scrollContainer.clientWidth / 2) + (cards[index].clientWidth / 2);
+            scrollContainer.scrollTo({ left: scrollPos, behavior: 'smooth' });
+        }
+    }
+
+    function onContainerScroll() {
+      const scrollCenter = scrollContainer.scrollLeft + scrollContainer.clientWidth / 2;
+      let closestIndex = 0;
+      let minDistance = Infinity;
+
+      const cards = scrollContainer.querySelectorAll('.event-card');
+      cards.forEach((child, index) => {
+        const childCenter = child.offsetLeft + child.clientWidth / 2;
+        const distance = Math.abs(childCenter - scrollCenter);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestIndex = index;
+        }
+      });
+      
+      if (closestIndex !== activeIndex) {
+        activeIndex = closestIndex;
+        updateUI();
+      }
+    }
+
+    // 4. Listeners de eventos
+    scrollContainer.addEventListener('scroll', onContainerScroll);
+
+    document.getElementById('btn-left').addEventListener('click', () => {
+        const newIndex = Math.max(0, activeIndex - 1);
+        scrollToCard(newIndex);
+    });
+
+    document.getElementById('btn-right').addEventListener('click', () => {
+        const newIndex = Math.min(events.length - 1, activeIndex + 1);
+        scrollToCard(newIndex);
+    });
+
+    dotsContainer.addEventListener('click', (e) => {
+        if(e.target.classList.contains('nav-dot')) {
+            const index = parseInt(e.target.getAttribute('data-index'));
+            scrollToCard(index);
+        }
+    });
+
+    // 5. Inicialización
+    updateUI();
+    setTimeout(() => {
+        scrollToCard(0);
+    }, 100);
+
+</script>
+</body>
+</html>
